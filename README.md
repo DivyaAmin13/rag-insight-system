@@ -1,3 +1,12 @@
+---
+title: Ragvault
+emoji: 🔍
+colorFrom: indigo
+colorTo: cyan
+sdk: docker
+pinned: false
+---
+
 # RAG-Based Insight & Retrieval System
 
 An end-to-end Retrieval-Augmented Generation (RAG) pipeline built with Python, FastAPI, and FAISS — designed for fast, accurate document retrieval using vector embeddings and cosine similarity ranking.
