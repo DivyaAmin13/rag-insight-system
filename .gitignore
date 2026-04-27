@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+env/
+
+# Data & Index files
+data/index.faiss
+data/documents.pkl
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
