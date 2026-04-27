@@ -513,7 +513,7 @@
     latencyBadge.textContent = '';
 
     try {
-      const res = await fetch('http://https://divyaamin13-ragvault.hf.space:8000/query', {
+      const res = await fetch('https://divyaamin13-ragvault.hf.space/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, top_k: topK })
