@@ -5,10 +5,19 @@ from pydantic import BaseModel
 import time
 import os
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="RAG Insight & Retrieval System",
     description="End-to-end RAG pipeline with FAISS vector search and FastAPI",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
