@@ -1,0 +1,15 @@
+Machine learning is a subset of artificial intelligence that enables systems to learn from data and improve from experience without being explicitly programmed. It focuses on developing computer programs that can access data and use it to learn for themselves.
+
+Deep learning is a subset of machine learning that uses neural networks with many layers to analyze various factors of data. Deep learning drives many artificial intelligence applications and services that improve automation.
+
+Natural language processing is a branch of artificial intelligence that helps computers understand, interpret and manipulate human language. NLP draws from many disciplines including computer science and computational linguistics.
+
+Retrieval Augmented Generation combines the power of large language models with external knowledge retrieval. It retrieves relevant documents from a knowledge base and uses them to generate accurate, contextual responses.
+
+FastAPI is a modern, fast web framework for building APIs with Python. It is based on standard Python type hints and provides automatic interactive API documentation. FastAPI is one of the fastest Python frameworks available.
+
+FAISS is a library developed by Facebook AI Research for efficient similarity search and clustering of dense vectors. It contains algorithms that search in sets of vectors of any size, up to ones that possibly do not fit in RAM.
+
+Vector embeddings are numerical representations of data in a high-dimensional space. Words, sentences, or documents with similar meanings are mapped to nearby points in this space, enabling semantic search capabilities.
+
+Cosine similarity is a metric used to measure how similar two documents are irrespective of their size. It measures the cosine of the angle between two vectors projected in a multi-dimensional space.
