@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RAG Insight System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #7c6aff;
+    --accent2: #00e5ff;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --success: #00e5a0;
+    --card: #13131c;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,106,255,0.08) 0%, transparent 70%);
+    top: -200px;
+    right: -200px;
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+
+  .glow-orb2 {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,255,0.05) 0%, transparent 70%);
+    bottom: -100px;
+    left: -100px;
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 10s ease-in-out infinite reverse;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, 30px); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  header {
+    margin-bottom: 56px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(124,106,255,0.1);
+    border: 1px solid rgba(124,106,255,0.2);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .tag::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.01em;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 6px;
+  }
+
+  .stat span { color: var(--accent2); font-weight: 500; }
+
+  /* Search box */
+  .search-section {
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .search-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    padding: 20px 20px 20px 50px;
+    resize: none;
+    height: 100px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    line-height: 1.6;
+  }
+
+  textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,106,255,0.12);
+  }
+
+  textarea::placeholder { color: var(--muted); }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .topk-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .topk-control input {
+    width: 56px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 6px 10px;
+    text-align: center;
+    outline: none;
+  }
+
+  .topk-control input:focus { border-color: var(--accent); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn:hover { background: #6b58ee; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,106,255,0.3); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-icon { font-size: 16px; }
+
+  /* Results */
+  .results-section {
+    margin-top: 48px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .results-title {
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .latency-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--success);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .result-card:hover { border-color: rgba(124,106,255,0.3); transform: translateY(-2px); }
+
+  .result-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .result-rank {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(124,106,255,0.1);
+    border: 1px solid rgba(124,106,255,0.15);
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .score-bar {
+    width: 100px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .score-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    min-width: 40px;
+  }
+
+  .result-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(232,232,240,0.8);
+    font-family: 'DM Mono', monospace;
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+  }
+
+  /* Loading */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .loading.active { display: block; }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error */
+  .error-box {
+    background: rgba(255,80,80,0.08);
+    border: 1px solid rgba(255,80,80,0.2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: #ff8080;
+    display: none;
+  }
+
+  .error-box.active { display: block; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--muted);
+  }
+
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+
+  .empty-state p {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="glow-orb"></div>
+<div class="glow-orb2"></div>
+
+<div class="container">
+  <header>
+    <div class="tag">RAG · FAISS · FastAPI</div>
+    <h1>Insight Retrieval<br/>System</h1>
+    <p class="subtitle">// semantic search over documents using vector embeddings</p>
+    <div class="stats-row">
+      <div class="stat">chunks indexed: <span id="chunkCount">—</span></div>
+      <div class="stat">model: <span>all-MiniLM-L6-v2</span></div>
+      <div class="stat">similarity: <span>cosine</span></div>
+    </div>
+  </header>
+
+  <div class="search-section">
+    <div class="search-wrapper">
+      <span class="search-icon">⌕</span>
+      <textarea id="queryInput" placeholder="Ask anything about your documents... e.g. What is FAISS and how does it work?"></textarea>
+    </div>
+    <div class="controls">
+      <div class="topk-control">
+        top_k results:
+        <input type="number" id="topK" value="3" min="1" max="10"/>
+      </div>
+      <button class="btn" id="searchBtn" onclick="search()">
+        <span class="btn-icon">→</span> Search
+      </button>
+    </div>
+  </div>
+
+  <div class="results-section" id="resultsSection" style="display:none">
+    <div class="results-header">
+      <div class="results-title" id="resultsTitle">Results</div>
+      <div class="latency-badge" id="latencyBadge"></div>
+    </div>
+    <div id="errorBox" class="error-box"></div>
+    <div id="loadingBox" class="loading">
+      <div class="spinner"></div>
+      retrieving relevant chunks...
+    </div>
+    <div id="resultsList"></div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">◈</div>
+    <p>Enter a query above to retrieve<br/>semantically relevant document chunks</p>
+  </div>
+</div>
+
+<script>
+  // Fetch chunk count on load
+  fetch('http://127.0.0.1:8000/')
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('chunkCount').textContent = d.total_chunks;
+    })
+    .catch(() => {
+      document.getElementById('chunkCount').textContent = 'offline';
+    });
+
+  async function search() {
+    const query = document.getElementById('queryInput').value.trim();
+    const topK = parseInt(document.getElementById('topK').value) || 3;
+
+    if (!query) {
+      document.getElementById('queryInput').focus();
+      return;
+    }
+
+    const btn = document.getElementById('searchBtn');
+    const resultsSection = document.getElementById('resultsSection');
+    const loadingBox = document.getElementById('loadingBox');
+    const errorBox = document.getElementById('errorBox');
+    const resultsList = document.getElementById('resultsList');
+    const emptyState = document.getElementById('emptyState');
+    const latencyBadge = document.getElementById('latencyBadge');
+    const resultsTitle = document.getElementById('resultsTitle');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-icon">⟳</span> Searching...';
+    resultsSection.style.display = 'block';
+    emptyState.style.display = 'none';
+    loadingBox.classList.add('active');
+    errorBox.classList.remove('active');
+    resultsList.innerHTML = '';
+    latencyBadge.textContent = '';
+
+    try {
+      const res = await fetch('http://127.0.0.1:8000/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, top_k: topK })
+      });
+
+      if (!res.ok) throw new Error('API error: ' + res.status);
+      const data = await res.json();
+
+      loadingBox.classList.remove('active');
+      latencyBadge.textContent = `⚡ ${data.latency_ms}ms`;
+      resultsTitle.textContent = `${data.results.length} results for "${query.slice(0,40)}${query.length > 40 ? '...' : ''}"`;
+
+      data.results.forEach((r, i) => {
+        const maxScore = data.results[0].score;
+        const pct = Math.round((r.score / (maxScore || 1)) * 100);
+
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.style.animationDelay = `${i * 0.08}s`;
+        card.innerHTML = `
+          <div class="result-meta">
+            <span class="result-rank">#${i+1} match</span>
+            <div class="score-bar-wrap">
+              <div class="score-bar">
+                <div class="score-fill" style="width:${pct}%"></div>
+              </div>
+              <span class="score-val">${r.score}</span>
+            </div>
+          </div>
+          <div class="result-text">${r.chunk.trim().replace(/\n/g, '<br/>')}</div>
+        `;
+        resultsList.appendChild(card);
+      });
+
+    } catch (err) {
+      loadingBox.classList.remove('active');
+      errorBox.classList.add('active');
+      errorBox.textContent = '⚠ ' + (err.message || 'Could not connect to API. Make sure the server is running.');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<span class="btn-icon">→</span> Search';
+  }
+
+  // Enter key to search
+  document.getElementById('queryInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      search();
+    }
+  });
+</script>
+</body>
+</html>
